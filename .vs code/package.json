@@ -1,0 +1,16 @@
+{
+  "name": "c.a.t.-bot",
+  "version": "0.0.0",
+  "description": "C.A.T. Bot",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "canvas": "^2.6.0",
+    "cron": "^1.7.2",
+    "discord.js": "^11.5.1",
+    "fs": "0.0.1-security",
+    "winston": "^3.2.1"
+  }
+}
