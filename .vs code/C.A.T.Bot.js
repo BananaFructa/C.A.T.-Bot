@@ -341,10 +341,10 @@ function tryadduser(id) {
     }
     if (!contained(MSGMINfile, id + id_EXSYM)) {
         var line = '';
-        for (var i = 0; i < 60; i++) {
+        line = line.concat('0');
+        for (var i = 0; i < 59; i++) {
             line = line.concat('|0');
         }
-        line = line.concat(minMsg_EXSYM);
         newentry(MSGMINfile, id + id_EXSYM);
         setfile(MSGMINfile, id + id_EXSYM, line);
     }
@@ -361,26 +361,14 @@ function resetForCurrentMin(min) {
 
 function msgminUpdate(elem, value, minute ,DEC_increment) {
     var list = accesfile(MSGMINfile, elem);
-    var startPoint = -1;
-    var endPoint = 0
-    var delCount = -1;
-    do {
-        startPoint++;
-        if (list[startPoint] == minMsg_EXSYM) {
-            delCount++;
-        }
-    } while (delCount != minute);
-    endPoint = startPoint;
-    do {
-        endPoint++;
-    } while (list[endPoint] != minMsg_EXSYM);
+    var spiltList = list.split(minMsg_EXSYM);
     if (DEC_increment) {
-        var number = parseInt(list.substring(startPoint + 1, endPoint)) + value;
-        list = list.substring(0, startPoint + 1) + number + list.substring(endPoint, list.length);
+        var number = parseInt(spiltList[minute]) + value;
+        spiltList[minute] = number;
     } else {
-        list = list.substring(0, startPoint + 1) + value + list.substring(endPoint, list.length);
+        spiltList[minute] = value;
     }
-    setfile(MSGMINfile, elem, list);
+    setfile(MSGMINfile, elem, spiltList.join(minMsg_EXSYM));
 }
 
 function filterOut(text) {
