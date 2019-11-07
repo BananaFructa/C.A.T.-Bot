@@ -14,10 +14,12 @@ const MSGfile = 'msgLIST.txt';
 const IMGfile = 'imgLIST.txt';
 const REPfile = 'repLIST.txt';
 const MSGMINfile = 'msgminLIST.txt';
+const DATBSfile = 'datbsLIST.txt';
 const USNF = "User not found!";
 const defHTMLcolor = '#993399';
 const defImgURL = "https://imgur.com/";
-const photoSet = fs.readFileSync('photoCodes.txt').toString().split('\n');
+const customPDB = 'CUSTOM_CPDB_'
+const defPhotoSet = fs.readFileSync('photoCodes.txt').toString().split('\n');
 const auth = fs.readFileSync('auth.txt').toString();
 const messageBufferLimit = 8;
 
@@ -32,14 +34,16 @@ const commands = [
     "catpic",
     "help",
     "braincells",
-    "enableLM",
-    "disableLM",
-    "mvToLM",
+    "crt-db",
+    "del-db",
+    "add-db",
+    "rmv-db",
     "roll",
     "cuses",
     "ping",
     "stats",
-    "rep"
+    "rep",
+    "cdb-help"
 ];
 const brainCells = [
     "-11",
@@ -54,14 +58,15 @@ const help = new Discord.RichEmbed()
     .setTitle('C.A.T. Bot Command List')
     .setDescription('The prefix for all commands is ~')
     .addField('Commands',
-        commands[8] + ' - See if the bot is online \n' +
+        commands[9] + ' - See if the bot is online \n' +
         commands[1] + ' - I guess you knew of this one since you opened the help menu \n ' +
         commands[0] + ' - Gives a random cat image from the bot`s database \n ' +
         commands[2] + ' - See how many brain cells you have left \n' +
-        commands[6] + ' - Roll the dice \n' +
-        commands[7] + ' - See how many times a command has been used \n' +
+        commands[7] + ' - Roll the dice \n' +
+        commands[8] + ' - See how many times a command has been used \n' +
         commands[9] + " - View your or someone's else stats \n" +
-        commands[10] + " - Give someone a reputation point"
+        commands[11] + " - Give someone a reputation point \n" +
+        commands[12] + " - Get the command list for the catpic database editor"
     );
 
 var currentMsgBufferLimit = 0;
@@ -96,7 +101,15 @@ bot.on('message', message => {
         //Commands
         if (message == prefix + commands[0]) {
             //~catpic
-            message.channel.send(defImgURL + photoSet[Math.floor(Math.random() * photoSet.length)]);
+            var guildId = message.guild.id;
+            if (!contained(DATBSfile, guildId + id_EXSYM) || accesfile(DATBSfile, guildId + id_EXSYM) == 'null') {
+                message.channel.send(defImgURL + defPhotoSet[Math.floor(Math.random() * defPhotoSet.length)]);
+            } else {
+                var file = accesfile(DATBSfile, guildId + id_EXSYM);
+                var photoSet = fs.readFileSync(file).toString().split('\n');
+                photoSet.pop();
+                message.channel.send(defImgURL + photoSet[Math.floor(Math.random() * photoSet.length)]);
+            }
             incrementfile(LISTfile, commands[0], 1);
         } else if (message == prefix + commands[1]) {
             //~help
@@ -131,28 +144,84 @@ bot.on('message', message => {
             }
             message.channel.send(reply);
             incrementfile(LISTfile, commands[2], 1);
-        } else if (message == prefix + commands[3] && message.author.id == message.guild.ownerID) {
-            //~enableLM
-            if (!LMactive) {
-                message.channel.send("Leave messages have been activated!");
-            } else {
-                message.channel.send("Leave messages have already been activated!");
+        } else if (message.content.includes(prefix + commands[3]) && message.content[0] == prefix && message.member.hasPermission("ADMINISTRATOR")) {
+            //~crt db <name>
+            var guildId = message.guild.id;
+            var dbName = message.content.replace(prefix + commands[3] + ' ', '');
+            if (!isForb(dbName) && !contained(DATBSfile, dbName + '.txt')) {
+                if (!contained(DATBSfile, guildId + id_EXSYM)) {
+                    try {
+                        newentry(DATBSfile, guildId + id_EXSYM, customPDB + dbName + '.txt');
+                        fs.writeFileSync(customPDB + dbName + '.txt', '');
+                        message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly created pic database " + "'" + customPDB + dbName + "'"));
+                    } catch (err) {
+                        message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("An unexpected error has occured"));
+                    }
+                } else if (accesfile(DATBSfile, guildId + id_EXSYM) == 'null') {
+                    try {
+                        setfile(DATBSfile, guildId + id_EXSYM, customPDB + dbName + '.txt');
+                        fs.writeFileSync(customPDB + dbName + '.txt', '');
+                        message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly created pic database " + "'" + customPDB + dbName + "'"));
+
+                    } catch (err) {
+                        message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("An unexpected error has occured"));
+                    }
+                } else {
+                    message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("You cannot create another pic database. A single database may be created per guild!"));
+                }
+                incrementfile(LISTfile, commands[3], 1);
+            } else if (isForb(dbName)) {
+                message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("A pic database name may only contain letters from a to z. Also it cannot contain CON , PRN , AUX , NUL , COM or LPT "));
+            } else if (contained(DATBSfile, dbName + '.txt')) {
+                message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("This pic database name has already been taken by other guild!"));
             }
-            incrementfile(LISTfile, commands[3], 1);
-        } else if (message == prefix + commands[4] && message.author.id == message.guild.ownerID) {
-            //~disableLM
-            if (LMactive) {
-                message.channel.send("Leave messages have already been disabled!");
+        } else if (message == prefix + commands[4] && message.member.hasPermission("ADMINISTRATOR")) {
+            //~del db
+            var guildId = message.guild.id;
+            if (!contained(DATBSfile, guildId + id_EXSYM) || accesfile(DATBSfile, guildId + id_EXSYM) == 'null') {
+                message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("There is no pic database to be deleted!"));
             } else {
-                message.channel.send("Leave messages have been disabled!");
+                try {
+                    var dbName = accesfile(DATBSfile, guildId + id_EXSYM).replace(".txt", '');
+                    setfile(DATBSfile, guildId + id_EXSYM, 'null');
+                    fs.unlinkSync(dbName + '.txt');
+                    var reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Database '" + dbName + "' has been succesfuly deleted!");
+                    message.channel.send(reply);
+                } catch (err) {
+                    message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Un unexpected error has occured"));
+                }
             }
             incrementfile(LISTfile, commands[4], 1);
-        } else if (message == prefix + commands[5] && message.author.id == message.guild.ownerID) {
-            //~mvToLM
-            LMchannel = message.channel.id
-            message.channel.send("Leave messages channel has been set to " + message.channel);
+        } else if (message.content.includes(prefix + commands[5]) && message.content[0] == prefix && message.member.hasPermission("ADMINISTRATOR")) {
+            //~add db <context>
+            var elem = message.content.replace(prefix + commands[5] + " ", '');
+            elem = elem.replace(defImgURL, '').replace("https://i.imgur.com/",'');
+            var guildId = message.guild.id;
+            var file = accesfile(DATBSfile, guildId + id_EXSYM);
+            if (contained(DATBSfile, guildId) && file != 'null') {
+                addtopicdb(file, elem);
+                message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly added element " + "'" + elem + "'" + ' to database!'));
+            } else {
+                message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("There is no database linked to this guild. Consider creating one before trying to add an element to it!"));
+            }
             incrementfile(LISTfile, commands[5], 1);
-        } else if (message.content.includes(prefix + commands[6])) {
+        } else if (message.content.includes(prefix + commands[6]) && message.content[0] == prefix && message.member.hasPermission("ADMINISTRATOR")) {
+            //~rmv-db <context>
+            var elem = message.content.replace(prefix + commands[6] + " ", '');
+            elem = elem.replace(defImgURL, '').replace("https://i.imgur.com/",'');
+            var guildId = message.guild.id;
+            var file = accesfile(DATBSfile, guildId + id_EXSYM);
+            if (contained(DATBSfile, guildId) && file != 'null') {
+                if (contained(file, elem)) {
+                    removefile(file, elem);
+                    message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly removed element " + "'" + elem + "'" + ' from database!'));
+                } else {
+                    message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("This element doesn't exist in the current context!"));
+                }
+            } else {
+                message.channel.send(new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("There is no database linked to this guild. Consider creating one before trying to remove an element from it!"));
+            }
+        } else if (message.content.includes(prefix + commands[7])) {
             //~roll
             var synMsgErrHandl = "Syntax error ! (Correct syntax example: ~roll d10)";
             if (message.content.includes('d')) {
@@ -160,7 +229,7 @@ bot.on('message', message => {
                 var number = message.content.substring(message.content.indexOf('d') + 1, message.content.length);
                 if (!isNaN(number)) {
                     reply.setColor(defHTMLcolor).setTitle("You rolled a " + (Math.floor(Math.random() * parseInt(number)) + 1) + " !");
-                    incrementfile(LISTfile, commands[6], 1);
+                    incrementfile(LISTfile, commands[7], 1);
                 } else {
                     reply.setColor(defHTMLcolor).setTitle(synMsgErrHandl);
                 }
@@ -169,7 +238,7 @@ bot.on('message', message => {
                 var reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle(synMsgErrHandl);
                 message.channel.send(reply);
             }
-        } else if (message == prefix + commands[7]) {
+        } else if (message == prefix + commands[8]) {
             //~cuses
             var i = 0;
             var tierList = "";
@@ -182,23 +251,23 @@ bot.on('message', message => {
             }
             var reply = new Discord.RichEmbed().setColor(defHTMLcolor).addField('All commands with all their uses', tierList);
             message.channel.send(reply);
-            incrementfile(LISTfile, commands[7], 1);
-        } else if (message == prefix + commands[8]) {
+            incrementfile(LISTfile, commands[8], 1);
+        } else if (message == prefix + commands[9]) {
             //~ping
             var reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Yea i'm online");
             message.channel.send(reply);
-            incrementfile(LISTfile, commands[8], 1);
-        } else if (message.content.includes(prefix + commands[9])) {
+            incrementfile(LISTfile, commands[9], 1);
+        } else if (message.content.includes(prefix + commands[10])) {
             //~stats
             if (!message.content.includes('@')) {
                 showstats(message.channel, message.author.id, message.author.tag);
-                incrementfile(LISTfile, commands[9], 1);
+                incrementfile(LISTfile, commands[10], 1);
             } else {
                 try {
                     var userping = message.mentions.users.first();
                     tryadduser(userping.id);
                     showstats(message.channel, userping.id, userping.tag);
-                    incrementfile(LISTfile, commands[9], 1);
+                    incrementfile(LISTfile, commands[10], 1);
                 } catch (err) {
                     var reply = new Discord.RichEmbed()
                         .setColor(defHTMLcolor)
@@ -206,7 +275,7 @@ bot.on('message', message => {
                     message.channel.send(reply);
                 }
             }
-        } else if (message.content.includes(prefix + commands[10])) {
+        } else if (message.content.includes(prefix + commands[11])) {
             try {
                 var userping = message.mentions.users.first();
                 if (!repblacklist.includes(message.author.id)) {
@@ -214,6 +283,7 @@ bot.on('message', message => {
                         tryadduser(userping.id);
                         incrementfile(REPfile, userping.id + id_EXSYM, 1);
                         var reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("You successfully gave a reputation point to " + userping.tag.substring(0, userping.tag.length - 5));
+                        incrementfile(LISTfile, commands[11], 1);
                         message.channel.send(reply);
                         repblacklist.push(message.author.id);
                     } else {
@@ -229,6 +299,17 @@ bot.on('message', message => {
                 var reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle(USNF);
                 message.channel.send(reply);
             }
+        } else if (message.content == prefix + commands[12]) {
+            message.channel.send(new Discord.RichEmbed()
+                .setColor(defHTMLcolor)
+                .setTitle("Custom catpic database")
+                .setDescription("The prefix for all commands is ~ \n You can only create one database. \n If you don't create a database the the ~catpic command will pick up the default database.")
+                .addField("Database editor commands",
+                    commands[3] + " - Create the database | ~crt-db <name>\n" +
+                    commands[4] + " - Remove database \n" +
+                    commands[5] + " - Add an element to the databse (You can put the whole imgur link or just the code from the image link) | ~add-db <element> \n" +
+                    commands[6] + " - Remove an element from the database (You can put the whole imgur link or just the code from the image link ) | ~rmv-db <element> \n"));
+            incrementfile(LISTfile, commands[12], 1);
         }
         incrementfile(MSGfile, message.author.id + id_EXSYM, 1);
         if (contained(MSGMINfile, message.author.id + id_EXSYM)) {
@@ -258,21 +339,28 @@ function incrementMinute() {
     resetForCurrentMin(currentMinute);
 }
 
+function isForb(text) {
+    return !(/^[a-zA-Z]*$/.test(text)) ||
+        text.includes('CON') ||
+        text.includes('PRN') ||
+        text.includes('AUX') ||
+        text.includes('NUL') ||
+        text.includes('COM') ||
+        text.includes('LPT');
+}
+
 function resetrepblacklist() {
     console.log("Reseted rep black list  - " + repblacklist.length + " elements erased");
     repblacklist = [];
 }
 
 function updateLISTfile() {
-    var list = fs.readFileSync(LISTfile).toString();
     var i;
     for (i = 0; i < commands.length; i++) {
-        if (list.indexOf(commands[i]) == -1) {
-            list = list + commands[i] + '0' + delimiter;
+        if (!contained(LISTfile, commands[i])) {
+            newentry(LISTfile, commands[i])
         }
     }
-    fs.writeFileSync(LISTfile, list);
-    return list;
 }
 
 function showstats(channel, id, tag) {
@@ -425,6 +513,21 @@ function accesfile(file, commandACCES) {
     }
     return list.substring(startPoint, i);
 
+}
+
+// special database functions
+
+function addtopicdb(file, elem) {
+    var fl = fs.createWriteStream(file, {
+        flags: 'a'
+    });
+    fl.write(elem + '\n');
+    fl.end();
+}
+
+function removefile(file, elem) {
+    var list = fs.readFileSync(file).toString();
+    fs.writeFileSync(file, list.replace(elem + '\n', ''));
 }
 
 process.on('uncaughtException', UncaughtExceptionHandler);
