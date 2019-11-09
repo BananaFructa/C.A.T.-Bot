@@ -128,9 +128,9 @@ bot.on('message', message => {
                         commands[2] + ' - See how many brain cells you have left \n' +
                         commands[7] + ' - Roll the dice \n' +
                         commands[8] + ' - See how many times all commands have been used \n' +
-                        commands[9] + " - View your or someone's else stats \n" +
+                        commands[10] + " - View your or someone's else stats \n" +
                         commands[11] + " - Give someone a reputation point \n" +
-                        commands[13] + " - Change the bot's  prefix for this guild \n" +
+                        commands[13] + " - Change the bot's  prefix for this guild (Administrator only) \n" +
                         commands[14] + " - Set the text events off or on (Administrator only , off by default) \n" +
                         commands[12] + " - Get the command list for the catpic database editor"
                     ));
@@ -324,10 +324,10 @@ bot.on('message', message => {
                     .setTitle("Custom catpic database")
                     .setDescription("The prefix for all commands is " + currentPrefix + " \n You can only create one database. \n If you don't create a database the the ~catpic command will pick up the default database.")
                     .addField("Database editor commands",
-                        commands[3] + " - Create the database | ~crt-db <name>\n" +
+                        commands[3] + " - Create the database | " + currentPrefix + "crt-db <name>\n" +
                         commands[4] + " - Remove database \n" +
-                        commands[5] + " - Add an element to the databse (You can put the whole imgur link or just the code from the image link) | ~add-db <element> \n" +
-                        commands[6] + " - Remove an element from the database (You can put the whole imgur link or just the code from the image link ) | ~rmv-db <element> \n"));
+                        commands[5] + " - Add an element to the databse (You can put the whole imgur link or just the code from the image link) | " + currentPrefix + "add-db <element> \n" +
+                        commands[6] + " - Remove an element from the database (You can put the whole imgur link or just the code from the image link ) | " + currentPrefix + "rmv-db <element> \n"));
                 incrementfile(LISTfile, commands[12], 1);
             } else if (commandContent.includes(commands[13]) && message.member.hasPermission("ADMINISTRATOR")) {
                 var setPrefix = commandContent.replace(commands[13] + ' ', '');
