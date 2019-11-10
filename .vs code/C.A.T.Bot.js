@@ -52,7 +52,8 @@ const commands = [
     "rep",
     "cdb-help",
     "prefix",
-    "txtevents"
+    "txtevents",
+    "rstprefix"
 ];
 
 const brainCells = [
@@ -94,6 +95,18 @@ bot.on('message', message => {
                 currentMsgBufferLimit = messageBufferLimit;
             }
         }
+        if (message.content == prefix + commands[15] && message.member.hasPermission("ADMINISTRATOR")) {
+            var reply;
+            if (!contained(PREFIXfile, message.guild.id + id_EXSYM)) {
+                reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("The prefix is already set to the default!");
+            } else if (accesfile(PREFIXfile, message.guild.id + id_EXSYM) == prefix) {
+                reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("The prefix is already set to the default!");
+            } else {
+                reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly set the prefix to the default (" + prefix + ")");
+                setfile(PREFIXfile, message.guild.id + id_EXSYM, prefix);
+            }
+            message.channel.send(reply);
+        }
         var currentPrefix = contained(PREFIXfile, message.guild.id + id_EXSYM) ? accepted2normal(accesfile(PREFIXfile, message.guild.id + id_EXSYM)) : prefix;
         if (message.content.indexOf(currentPrefix) == 0) {
             var commandContent = message.content.replace(currentPrefix, '');
@@ -132,6 +145,7 @@ bot.on('message', message => {
                         commands[11] + " - Give someone a reputation point \n" +
                         commands[13] + " - Change the bot's  prefix for this guild (Administrator only) \n" +
                         commands[14] + " - Set the text events off or on (Administrator only , off by default) \n" +
+                        commands[15] + " - Reset to default prefix (Administrator only , independent of custom prefix) \n" +
                         commands[12] + " - Get the command list for the catpic database editor"
                     ));
                 incrementfile(LISTfile, commands[1], 1);
@@ -163,7 +177,7 @@ bot.on('message', message => {
                 }
                 message.channel.send(reply);
                 incrementfile(LISTfile, commands[2], 1);
-            } else if (commandContent.includes(commands[3]) && message.member.hasPermission("ADMINISTRATOR")) {
+            } else if (commandContent.includes(commands[3]) && message.member.hasPermission("ADMINISTRATOR") && commandContent.indexOf(commands[3]) == 0) {
                 //~crt db <name>
                 var guildId = message.guild.id;
                 var dbName = commandContent.replace(commands[3] + ' ', '');
@@ -214,7 +228,7 @@ bot.on('message', message => {
                 }
                 message.channel.send(reply);
                 incrementfile(LISTfile, commands[4], 1);
-            } else if (commandContent.includes(commands[5]) && message.member.hasPermission("ADMINISTRATOR")) {
+            } else if (commandContent.includes(commands[5]) && message.member.hasPermission("ADMINISTRATOR") && commandContent.indexOf(commands[5]) == 0) {
                 //~add db <context>
                 var reply;
                 var elem = commandContent.replace(commands[5] + " ", '');
@@ -228,7 +242,7 @@ bot.on('message', message => {
                 }
                 message.channel.send(reply);
                 incrementfile(LISTfile, commands[5], 1);
-            } else if (commandContent.includes(commands[6]) && message.member.hasPermission("ADMINISTRATOR")) {
+            } else if (commandContent.includes(commands[6]) && message.member.hasPermission("ADMINISTRATOR") && commandContent.indexOf(commands[6]) == 0) {
                 //~rmv-db <context>
                 var reply;
                 var elem = commandContent.replace(commands[6] + " ", '');
@@ -329,15 +343,19 @@ bot.on('message', message => {
                         commands[5] + " - Add an element to the databse (You can put the whole imgur link or just the code from the image link) | " + currentPrefix + "add-db <element> \n" +
                         commands[6] + " - Remove an element from the database (You can put the whole imgur link or just the code from the image link ) | " + currentPrefix + "rmv-db <element> \n"));
                 incrementfile(LISTfile, commands[12], 1);
-            } else if (commandContent.includes(commands[13]) && message.member.hasPermission("ADMINISTRATOR")) {
+            } else if (commandContent.includes(commands[13]) && message.member.hasPermission("ADMINISTRATOR") && commandContent.indexOf(commands[13]) == 0) {
                 var setPrefix = commandContent.replace(commands[13] + ' ', '');
                 var reply;
-                if (!contained(PREFIXfile, message.guild.id)) {
-                    newentry(PREFIXfile, message.guild.id + id_EXSYM, normal2accepted(setPrefix));
+                if ((setPrefix == commands[13] && message.content == currentPrefix + commands[13]) || setPrefix == '') {
+                    reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("There is no prefix to be read!");
                 } else {
-                    setfile(PREFIXfile, message.guild.id + id_EXSYM, normal2accepted(setPrefix));
+                    if (!contained(PREFIXfile, message.guild.id)) {
+                        newentry(PREFIXfile, message.guild.id + id_EXSYM, normal2accepted(setPrefix));
+                    } else {
+                        setfile(PREFIXfile, message.guild.id + id_EXSYM, normal2accepted(setPrefix));
+                    }
+                    reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly set prefix " + setPrefix + " for this current guild!");
                 }
-                reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly set prefix " + setPrefix + " for this current guild!");
                 message.channel.send(reply);
                 incrementfile(LISTfile, commands[13], 1);
             } else if (commandContent.includes(commands[14])) {
@@ -600,5 +618,5 @@ function UncaughtExceptionHandler(err) {
     console.log("Uncaught Exception Encountered!!");
     console.log("err: ", err);
     console.log("Stack trace: ", err.stack);
-    setInterval(function () { }, 1000);
+    process.exit(1);
 }
