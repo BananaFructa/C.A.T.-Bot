@@ -655,5 +655,5 @@ function UncaughtExceptionHandler(err) {
     console.log("Uncaught Exception Encountered!!");
     console.log("err: ", err);
     console.log("Stack trace: ", err.stack);
-  //  process.exit(1);
+    process.exit(1);
 }
