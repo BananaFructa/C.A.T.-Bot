@@ -71,6 +71,7 @@ var currentMinute = new Date().getMinutes();
 
 let resetrepblacklistJOB = new cron.CronJob('0 * * * *', resetrepblacklist);
 let incrementMinuteCounterJOB = new cron.CronJob('* * * * *', incrementMinute);
+let dataDumpJOB = new cron.CronJob('0 */12 * * *', dumpdata);
 
 bot.login(auth);
 bot.on('ready', () => {
@@ -79,6 +80,8 @@ bot.on('ready', () => {
     updateLISTfile();
     resetrepblacklistJOB.start();
     incrementMinuteCounterJOB.start();
+    dataDumpJOB.start();
+    dumpdata();
 });
 
 bot.on('message', message => {
@@ -435,6 +438,27 @@ function updateLISTfile() {
     }
 }
 
+function dumpdata() {
+    //dump msgmin
+    var user_cout = accesfile(MEMBERfile, 'count');
+    var i;
+    var table = [];
+    for (i = 0; i < user_cout; i++) {
+        var user = accesfile(MEMBERfile, i + member_EXSYM);
+        var a = accesfile(MSGMINfile, user);
+        table = (a).split(table_EXSYM);
+        var allZero = true;
+        for (var j = 0; j < table.length; j++) {
+            if (table[j] != '0') {
+                allZero = false;
+            }
+        }
+        if (allZero) {
+            deletefile(MSGMINfile, user);
+        }
+    }
+}
+
 function showstats(channel, id, tag) {
     loadImage('test.png').then((image) => {
         const canvas = createCanvas(300, 100);
@@ -514,7 +538,10 @@ function resetForCurrentMin(min) {
     var user_cout = accesfile(MEMBERfile, count);
     var i;
     for (i = 0; i < user_cout; i++) {
-        settablefile(MSGMINfile, accesfile(MEMBERfile, i + member_EXSYM), 0, min, 'set');
+        var user = accesfile(MEMBERfile, i + member_EXSYM);
+        if (contained(MSGMINfile, user)) {
+            settablefile(MSGMINfile,user, 0, min, 'set');
+        }
     }
 }
 
@@ -581,7 +608,17 @@ function accesfile(file, commandACCES) {
         i++;
     }
     return list.substring(startPoint, i);
+}
 
+function deletefile(file, elem) {
+    var list = fs.readFileSync(file).toString().replace(/\s/g, '');
+    var startPoint = list.indexOf(elem);
+    var i = startPoint;
+    while (list[i] != delimiter) {
+        i++;
+    }
+    var list = list.replace(list.substring(startPoint, i + 1), '');
+    fs.writeFileSync(file, list.replace(/!/g,'!\n'));
 }
 
 function settablefile(file, elem, value, idx, DEC_increment) {
@@ -618,5 +655,5 @@ function UncaughtExceptionHandler(err) {
     console.log("Uncaught Exception Encountered!!");
     console.log("err: ", err);
     console.log("Stack trace: ", err.stack);
-    process.exit(1);
+  //  process.exit(1);
 }
