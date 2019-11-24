@@ -17,11 +17,13 @@ const MSGMINfile = 'msgminLIST.txt';
 const DATBSfile = 'datbsLIST.txt';
 const PREFIXfile = 'prefixLIST.txt';
 const TXTEVALLOWfile = 'txtevallowLIST.txt';
+const GUILDfile = 'guildLIST.txt';
 const USNF = "User not found!";
 const defHTMLcolor = '#993399';
 const defImgURL = "https://imgur.com/";
 const customPDB = 'CUSTOM_CPDB_'
 const defPhotoSet = fs.readFileSync('photoCodes.txt').toString().split('\n');
+defPhotoSet.pop();
 const auth = fs.readFileSync('auth.txt').toString();
 const messageBufferLimit = 8;
 
@@ -53,7 +55,10 @@ const commands = [
     "cdb-help",
     "prefix",
     "txtevents",
-    "rstprefix"
+    "rstprefix",
+    "datalist",
+    "mergefrom",
+    "deletefrom"
 ];
 
 const brainCells = [
@@ -77,6 +82,12 @@ bot.login(auth);
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user.tag}!`);
     bot.user.setGame('with your cat');
+    for (var [key] of bot.guilds) {
+        if (!contained(GUILDfile, key + id_EXSYM)) {
+            newentry(GUILDfile, accesfile(GUILDfile, 'count') + member_EXSYM, key + id_EXSYM);
+            incrementfile(GUILDfile, 'count', 1);
+        }
+    }
     updateLISTfile();
     resetrepblacklistJOB.start();
     incrementMinuteCounterJOB.start();
@@ -138,18 +149,18 @@ bot.on('message', message => {
                     .setTitle('C.A.T. Bot Command List')
                     .setDescription('The prefix for all commands is ' + currentPrefix)
                     .addField('Commands',
-                        commands[9] + ' - See if the bot is online \n' +
-                        commands[1] + ' - I guess you knew of this one since you opened the help menu \n ' +
-                        commands[0] + " - Gives a random cat image from the bot's database \n" +
-                        commands[2] + ' - See how many brain cells you have left \n' +
-                        commands[7] + ' - Roll the dice \n' +
-                        commands[8] + ' - See how many times all commands have been used \n' +
-                        commands[10] + " - View your or someone's else stats \n" +
-                        commands[11] + " - Give someone a reputation point \n" +
-                        commands[13] + " - Change the bot's  prefix for this guild (Administrator only) \n" +
-                        commands[14] + " - Set the text events off or on (Administrator only , off by default) \n" +
-                        commands[15] + " - Reset to default prefix (Administrator only , independent of custom prefix) \n" +
-                        commands[12] + " - Get the command list for the catpic database editor"
+                        "**" + commands[9] + '** - See if the bot is online \n' +
+                        "**" + commands[1] + '** - I guess you knew of this one since you opened the help menu \n ' +
+                        "**" + commands[0] + "** - Gives a random cat image from the bot's database \n" +
+                        "**" + commands[2] + '** - See how many brain cells you have left \n' +
+                        "**" + commands[7] + '** - Roll the dice \n' +
+                        "**" + commands[8] + '** - See how many times all commands have been used \n' +
+                        "**" + commands[10] + "** - View your or someone's else stats \n" +
+                        "**" + commands[11] + "** - Give someone a reputation point \n" +
+                        "**" + commands[13] + "** - Change the bot's  prefix for this guild (Administrator only) \n" +
+                        "**" + commands[14] + "** - Set the text events off or on (Administrator only , off by default) \n" +
+                        "**" + commands[15] + "** - Reset to default prefix (Administrator only , independent of custom prefix) \n" +
+                        "**" + commands[12] + "** - Get the command list for the catpic database editor"
                     ));
                 incrementfile(LISTfile, commands[1], 1);
             } else if (commandContent.includes(commands[2])) {
@@ -183,7 +194,7 @@ bot.on('message', message => {
             } else if (commandContent.includes(commands[3]) && message.member.hasPermission("ADMINISTRATOR") && commandContent.indexOf(commands[3]) == 0) {
                 //~crt db <name>
                 var guildId = message.guild.id;
-                var dbName = commandContent.replace(commands[3] + ' ', '');
+                var dbName = commandContent.replace(commands[3] + ' ', '').toLowerCase();
                 var reply;
                 if (!isForb(dbName) && !contained(DATBSfile, dbName + '.txt')) {
                     if (!contained(DATBSfile, guildId + id_EXSYM)) {
@@ -341,10 +352,15 @@ bot.on('message', message => {
                     .setTitle("Custom catpic database")
                     .setDescription("The prefix for all commands is " + currentPrefix + " \n You can only create one database. \n If you don't create a database the the ~catpic command will pick up the default database.")
                     .addField("Database editor commands",
-                        commands[3] + " - Create the database | " + currentPrefix + "crt-db <name>\n" +
-                        commands[4] + " - Remove database \n" +
-                        commands[5] + " - Add an element to the databse (You can put the whole imgur link or just the code from the image link) | " + currentPrefix + "add-db <element> \n" +
-                        commands[6] + " - Remove an element from the database (You can put the whole imgur link or just the code from the image link ) | " + currentPrefix + "rmv-db <element> \n"));
+                        "**" + commands[3] + "** - Create the database | " + currentPrefix + "crt-db <name>\n" +
+                        "**" + commands[4] + "** - Remove database \n" +
+                        "**" + commands[5] + "** - Add an element to the databse (You can put the whole imgur link or just the code from the image link) | " + currentPrefix + "add-db <element> \n" +
+                        "**" + commands[6] + "** - Remove an element from the database (You can put the whole imgur link or just the code from the image link ) | " + currentPrefix + "rmv-db <element> \n" +
+                        "**" + commands[16] + "** - List all the databases \n" +
+                        "**" + commands[17] + "** - Import a database in the current database | " + currentPrefix + "mergefrom <database> \n" +
+                        "**" + commands[18] + "** - Delete any common elements between a database and the current database | " + currentPrefix + "deletefrom <database>"
+                    )
+                );
                 incrementfile(LISTfile, commands[12], 1);
             } else if (commandContent.includes(commands[13]) && message.member.hasPermission("ADMINISTRATOR") && commandContent.indexOf(commands[13]) == 0) {
                 var setPrefix = commandContent.replace(commands[13] + ' ', '');
@@ -387,6 +403,65 @@ bot.on('message', message => {
                 }
                 message.channel.send(reply);
                 incrementfile(LISTfile, commands[14], 1);
+            } else if (commandContent == commands[16]) {
+                //~datalist
+                var reply;
+                var guildCount = accesfile(GUILDfile, 'count');
+                var txt = "Default | BananaFructa | " + defPhotoSet.length + " elements";
+                for (var i = 0; i < guildCount; i++) {
+                    if (contained(DATBSfile, accesfile(GUILDfile, i + member_EXSYM)) && accesfile(DATBSfile, accesfile(GUILDfile, i + member_EXSYM)) != 'null') {
+                        var aha = fs.readFileSync(accesfile(DATBSfile, accesfile(GUILDfile, i + member_EXSYM))).toString()
+                        var imgcount = aha.split('\n').length - 1;
+                        txt += '\n' + accesfile(DATBSfile, accesfile(GUILDfile, i + member_EXSYM)).replace(/.txt/g, '').replace(/CUSTOM_CPDB_/g, '');
+                        txt += ' | ' + bot.guilds.get(accesfile(GUILDfile, i + member_EXSYM).replace(/:/g, '')).name + ' | ' + imgcount + ' elements';
+                    }
+                }
+                reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Databse list").setDescription(txt);
+                message.channel.send(reply);
+            } else if (commandContent.indexOf(commands[17]) == 0 && message.member.hasPermission("ADMINISTRATOR")) {
+                //~mergefrom
+                var reply;
+                var databseToMerge = (commandContent.replace(commands[17] + ' ', '') != "Default" ? customPDB + commandContent.replace(commands[17] + ' ', '') + '.txt' : "photoCodes.txt");
+                var currData = accesfile(DATBSfile, message.guild.id + id_EXSYM);
+                if (contained(DATBSfile, message.guild.id + id_EXSYM) && currData != 'null') {
+                    if ((databseToMerge != "photoCodes.txt" ? contained(DATBSfile, databseToMerge) : true)) {
+                        var data = fs.readFileSync(databseToMerge).toString();
+                        var fl = fs.createWriteStream(currData, {
+                            flags: 'a'
+                        });
+                        fl.write(data);
+                        fl.end();
+                        reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly merged database '" + databseToMerge.replace('.txt', '') + "' " + "to '" + currData.replace('.txt', '') + "' !");
+                    } else {
+                        reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("The specified database doesn't exist!");
+                    }
+                } else {
+                    reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Consider creating a databse before modifying it!");
+                }
+                message.channel.send(reply);
+            } else if (commandContent.indexOf(commands[18]) == 0 && message.member.hasPermission("ADMINISTRATOR")) {
+                //~deletefrom
+                var reply;
+                var databseToDelete = (commandContent.replace(commands[18] + ' ', '') != "Default" ? customPDB + commandContent.replace(commands[18] + ' ', '') + '.txt' : "photoCodes.txt");
+                 var currentFile = accesfile(DATBSfile, message.guild.id + id_EXSYM);
+                if (contained(DATBSfile, message.guild.id + id_EXSYM) && currentFile != 'null') {
+                    if ((databseToDelete != "photoCodes.txt" ? contained(DATBSfile, databseToDelete) : true)) {
+                        var dataToDel = [];
+                        dataToDel = fs.readFileSync(databseToDelete).toString().split('\n');
+                        dataToDel.pop();
+                        var data = fs.readFileSync(currentFile).toString();
+                        for (var i = 0; i < dataToDel.length; i++) {
+                            data = data.replace(dataToDel[i] + '\n', '');
+                        }
+                        fs.writeFileSync(currentFile, data);
+                        reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Succesfuly removed database '" + databseToDelete.replace('.txt', '') + "' " + "from '" + currentFile.replace('.txt', '') + "' !");
+                    } else {
+                        reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("The specified database doesn't exist!");
+                    }
+                } else {
+                    reply = new Discord.RichEmbed().setColor(defHTMLcolor).setTitle("Consider creating a databse before modifying it!");
+                }
+                message.channel.send(reply);
             }
         }
         //inc message
@@ -402,6 +477,22 @@ bot.on('message', message => {
         if (currentMsgBufferLimit != 0) {
             //forBruh
             currentMsgBufferLimit--;
+        }
+    }
+});
+
+bot.on('guildCreate', guild => {
+    newentry(GUILDfile, accesfile(GUILDfile, 'count') + member_EXSYM, guild.id + id_EXSYM);
+    incrementfile(GUILDfile, 'count', 1);
+});
+
+bot.on('guildDelete', guild => {
+    fs.writeFileSync(GUILDfile, '');
+    newentry(GUILDfile, 'count');
+    for (var [key] of bot.guilds) {
+        if (!contained(GUILDfile, key + id_EXSYM)) {
+            newentry(GUILDfile, accesfile(GUILDfile, 'count') + member_EXSYM, key + id_EXSYM);
+            incrementfile(GUILDfile, 'count', 1);
         }
     }
 });
@@ -649,11 +740,13 @@ function removefile(file, elem) {
     fs.writeFileSync(file, list.join('\n'));
 }
 
+
+
 process.on('uncaughtException', UncaughtExceptionHandler);
 
 function UncaughtExceptionHandler(err) {
     console.log("Uncaught Exception Encountered!!");
     console.log("err: ", err);
     console.log("Stack trace: ", err.stack);
-    process.exit(1);
+  //  process.exit(1);
 }
