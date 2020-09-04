@@ -14,7 +14,7 @@ bot.on('ready', () => {
     DBM.SetClient(bot);
     DBM.CheckForNewCommand(CommandManager.Commands);
     DBM.StartRoutines();
-    //DBM.CheckForGuilds(bot);
+    DBM.CheckForGuilds(bot);
 
     console.log(`Logged in as ${bot.user.tag}!`);
     bot.user.setActivity("your cat!", { type: "WATCHING" });
