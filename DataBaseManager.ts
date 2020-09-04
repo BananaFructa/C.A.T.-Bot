@@ -1,4 +1,5 @@
 import * as Cron from 'cron';
+import * as fs from 'fs';
 import {JsonDB} from "node-json-db"
 import {Config} from "node-json-db/dist/lib/JsonDBConfig"
 import {Command} from "./Commands/Command"
@@ -188,7 +189,7 @@ export function RemoveGuild (ID :string) : void {
     let GuildData_ : GuildDataFormat = GetGuildData(ID);
     let Index : number = GuildData.getIndex("/Guilds",ID);
     if (GuildData_.db !== "null") {
-       // fs.unlinkSync(GuildData_.db);
+        fs.unlinkSync(GuildData_.db);
     }
     GuildData.delete("/Guilds["+Index+"]");
     let Count : number = GuildData.getData("/Count");
