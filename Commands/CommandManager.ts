@@ -18,6 +18,7 @@ import {CPrefix} from "./CPrefix"
 import {CCuses} from "./CCuses"
 import {CStats} from "./CStats"
 import {CDataList} from "./CDatalist"
+import { CCatOrDog } from "./CCatOrDog"
 
 
 export class CommandManager {
@@ -42,6 +43,7 @@ export class CommandManager {
         this.Commands.push(new CPrefix);
         this.Commands.push(new CCuses);
         this.Commands.push(new CStats);
+        this.Commands.push(new CCatOrDog);
         this.Commands.push(new CDataList);
     }
 
@@ -65,7 +67,6 @@ export class CommandManager {
             
             for (let i = 0;i < this.Commands.length;i++) {
                 if (CommandQuerry.startsWith(this.Commands[i].Name)) {
-
                     if (this.Commands[i].ArgumentMode === ArgumentMode.SPLIT) { 
                         let CommandArguments = CommandQuerry.split(" ");
                         for (let j = 1;j < CommandArguments.length;j++) {

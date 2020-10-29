@@ -14,3 +14,4 @@ CUSTOM_CPDB_serveryserver.txt
 CUSTOM_CPDB_test.txt
 DataBaseRepairTool.ts
 txtevallowLIST.txt
+node_modules

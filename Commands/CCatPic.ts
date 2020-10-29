@@ -15,7 +15,6 @@ export class CCatPic extends Command {
     }
 
     Run = async function(Args)  {
-
         let Embed :Discord.MessageEmbed = new Discord.MessageEmbed().setColor("#993399");
         let Message :Discord.Message =  Args[ArgumentIndexes.MESSAGE];
 
