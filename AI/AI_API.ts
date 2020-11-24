@@ -1,7 +1,7 @@
 import { rejects } from "assert";
 import {ChildProcess, spawn} from "child_process"
 
-let AIProcess = spawn("py",["AI/AIRunner.py"]);
+let AIProcess = spawn("py",["./AI/AIRunner.py"]);
 
 export function RunAIWithID(ID,Callback) {
     AIProcess.stdin.write("0\n");

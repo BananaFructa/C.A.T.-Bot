@@ -3,13 +3,13 @@ import keras as kr
 import numpy as np
 import matplotlib.image as mplimg
 
-print("AI Python Backend Initilized")
+CatGenerator = kr.models.load_model("./SavedAIs/CatGenerator")
 
-CatGenerator = kr.models.load_model("SavedAIs/CatGenerator")
+print("AI Python Backend Initilized")
 
 def RunOne(ID):
     if (ID == "0"):
-         mplimg.imsave("AI/OUT.jpg",tf.reshape(CatGenerator(np.random.randn(1,100)),(64,64,3)).numpy())
+         mplimg.imsave("./AI/OUT.jpg",tf.reshape(CatGenerator(np.random.randn(1,100)),(64,64,3)).numpy())
 
 while True:
     try:

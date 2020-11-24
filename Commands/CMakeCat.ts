@@ -16,7 +16,7 @@ export class CMakeCat extends Command {
         AI_API.RunAIWithID("0",NoPythonExceptions => {
             if (NoPythonExceptions) {
                 Embed.setTitle("Here's a cat."); 
-                Embed.attachFiles(["AI/OUT.jpg"]).setImage('attachment://OUT.jpg');
+                Embed.attachFiles(["./AI/OUT.jpg"]).setImage('attachment://OUT.jpg');
             } else {
                 Embed.setTitle("An exception was encountered in the python backend"); 
             }
