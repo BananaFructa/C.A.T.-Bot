@@ -1,7 +1,8 @@
 import * as Discord from 'discord.js';
 import * as fs from 'fs';
 import * as DBM from "./DataBaseManager"
-import * as AIUtils from "./AI/NNUtils"
+import * as AI_API from "./AI/AI_API"
+
 import { CommandManager } from "./Commands/CommandManager"
 
 const bot = new Discord.Client();

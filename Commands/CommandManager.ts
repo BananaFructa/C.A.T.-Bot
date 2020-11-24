@@ -19,6 +19,7 @@ import {CCuses} from "./CCuses"
 import {CStats} from "./CStats"
 import {CDataList} from "./CDatalist"
 import { CCatOrDog } from "./CCatOrDog"
+import { CMakeCat } from "./CMakeCat"
 
 
 export class CommandManager {
@@ -45,6 +46,7 @@ export class CommandManager {
         this.Commands.push(new CStats);
         this.Commands.push(new CCatOrDog);
         this.Commands.push(new CDataList);
+        this.Commands.push(new CMakeCat);
     }
 
     /** Sets the prefix

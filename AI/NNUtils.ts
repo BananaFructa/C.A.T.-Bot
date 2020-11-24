@@ -65,3 +65,5 @@ export async function LoadPixelArrayFromUrl(Url : string,w : number,h : number,C
             CallBack(PixelArray);
         });  
 }
+
+// TODO: Dismatle old system

@@ -7,3 +7,5 @@ export interface NN_Data {
     layerCount : number,
     sizes : number[]
 }
+
+// TODO: Dismatle old system

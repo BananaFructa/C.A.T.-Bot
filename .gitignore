@@ -1,6 +1,7 @@
 
 GuildData.json
 out.png
+OUT.jpg
 nohup.out
 UserData.json
 UserHourCount.json
@@ -15,3 +16,4 @@ CUSTOM_CPDB_test.txt
 DataBaseRepairTool.ts
 txtevallowLIST.txt
 node_modules
+CommandUsages.json

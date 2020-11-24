@@ -22,3 +22,5 @@ export function NNRunConvolutional(Input : number[],ND : NN_Data) : number[] {
     return CurrentActivation;
 
 }
+
+// TODO: Dismatle old system
