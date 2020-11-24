@@ -24,7 +24,8 @@ export class CHelp extends Command {
             "**" + "roll" + '** - Roll the dice \n' +
             "**" + "cuses" + '** - See how many times all commands have been used \n' +
             "**" + "sats" + "** - View your or someone's else stats \n" +
-            "**" + "catordog" + "** - Post an image with this command and see if the image is a cat or not (The AI has curentlly like 70% accuracy so don't bully him) \n" +
+            "**" + "catordog" + "** - Post an image with this command and see if the image is a cat or not \n" +
+            "**" + "makecat" + "** - Use CATBot's GAN to generate a 64x64 cat image \n" +
             "**" + "rep" + "** - Give someone a reputation point \n" +
             "**" + "prefix" + "** - Change the bot's  prefix for this guild (Administrator only) \n" +
             "**" + "rstprefix" + "** - Reset to default prefix (Administrator only , independent of custom prefix) \n" +
